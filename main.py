@@ -28,21 +28,27 @@ def vectorize(tokens, model):
     vectors = np.array(vectors)
     return vectors.mean(axis=0)
 
+def experiment(dataset, vec_size, win, min):
+    delete_stopwords(dataset)
+    rkf = sk.model_selection.RepeatedStratifiedKFold(n_splits=5, n_repeats=2)
+    for train_index, test_index in rkf.split(X=dataset['text'], y=dataset['class']):
+        X_train = dataset['text'][train_index]
+        X_test = dataset['text'][test_index]
+        y_train = dataset['class'][train_index]
+        y_test = dataset['class'][test_index]
+        w2v_model = gensim.models.Word2Vec(X_train, vector_size=vec_size, window=win, min_count=2)
+        words = set(w2v_model.wv.index_to_key)
+        X_train = np.array([vectorize(text, w2v_model) for text in X_train])
+        X_test = np.array([vectorize(text, w2v_model) for text in X_test])
 
+        clf = sk.linear_model.LogisticRegression()
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X_test)
+        print('Accuracy ', sk.metrics.accuracy_score(y_test, y_pred))
 def main():
     dataset = get_dataset("spam_ham_dataset.csv")
     tokenize(dataset)
-    delete_stopwords(dataset)
-    X_train, X_test, y_train, y_test = sk.model_selection.train_test_split(dataset['text'], dataset['class'], test_size=0.2)
-    w2v_model = gensim.models.Word2Vec(X_train, vector_size=100, window=5, min_count=2)
-    words = set(w2v_model.wv.index_to_key)
-    X_train = np.array([vectorize(text, w2v_model) for text in X_train])
-    X_test = np.array([vectorize(text, w2v_model) for text in X_test])
-
-    clf = sk.linear_model.LogisticRegression()
-    clf.fit(X_train, y_train)
-    y_pred = clf.predict(X_test)
-    print('Accuracy ', sk.metrics.accuracy_score(y_test, y_pred))
+    experiment(dataset, vec_size=100, win=5, min=2)
 
 if __name__ == "__main__":
     main()
