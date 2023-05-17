@@ -44,7 +44,10 @@ def experiment(dataset, vec_size, win, min):
         clf = sk.linear_model.LogisticRegression()
         clf.fit(X_train, y_train)
         y_pred = clf.predict(X_test)
-        print('Accuracy ', sk.metrics.accuracy_score(y_test, y_pred))
+        print('Balanced accuracy', sk.metrics.balanced_accuracy_score(y_test, y_pred))
+        print('F-1 score', sk.metrics.f1_score(y_test, y_pred))
+        print('Precision', sk.metrics.precision_score(y_test, y_pred))
+        print('Recall', sk.metrics.recall_score(y_test, y_pred))
 def main():
     dataset = get_dataset("spam_ham_dataset.csv")
     tokenize(dataset)
