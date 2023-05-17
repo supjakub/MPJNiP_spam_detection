@@ -28,7 +28,20 @@ def vectorize(tokens, model):
     vectors = np.array(vectors)
     return vectors.mean(axis=0)
 
+def log_metrics(vec_size, win, min, balanced_accuracy, f1_score, precision, recall):
+    f = open('metrics.log', 'a')
+    f.write('vec_size=' + str(vec_size) +';window=' + str(win) + ';min_count=' + str(min) + '\n')
+    f.write('balanced_accuracy ' + str(balanced_accuracy) + '\n')
+    f.write('f1_score ' + str(f1_score) + '\n')
+    f.write('precision ' + str(precision) + '\n')
+    f.write('recall' + str(recall) + '\n')
+    f.close()
+
 def experiment(dataset, vec_size, win, min):
+    balanced_accuracy = []
+    f1_score = []
+    precision = []
+    recall = []
     delete_stopwords(dataset)
     rkf = sk.model_selection.RepeatedStratifiedKFold(n_splits=5, n_repeats=2)
     for train_index, test_index in rkf.split(X=dataset['text'], y=dataset['class']):
@@ -44,10 +57,13 @@ def experiment(dataset, vec_size, win, min):
         clf = sk.linear_model.LogisticRegression()
         clf.fit(X_train, y_train)
         y_pred = clf.predict(X_test)
-        print('Balanced accuracy', sk.metrics.balanced_accuracy_score(y_test, y_pred))
-        print('F-1 score', sk.metrics.f1_score(y_test, y_pred))
-        print('Precision', sk.metrics.precision_score(y_test, y_pred))
-        print('Recall', sk.metrics.recall_score(y_test, y_pred))
+
+        balanced_accuracy.append(sk.metrics.balanced_accuracy_score(y_test, y_pred))
+        f1_score.append(sk.metrics.f1_score(y_test, y_pred))
+        precision.append(sk.metrics.precision_score(y_test, y_pred))
+        recall.append(sk.metrics.recall_score(y_test, y_pred))
+
+    log_metrics(vec_size, win, min, balanced_accuracy, f1_score, precision, recall)
 def main():
     dataset = get_dataset("spam_ham_dataset.csv")
     tokenize(dataset)
