@@ -31,10 +31,10 @@ def vectorize(tokens, model):
 def log_metrics(vec_size, win, min, balanced_accuracy, f1_score, precision, recall):
     f = open('metrics.log', 'a')
     f.write('vec_size=' + str(vec_size) +';window=' + str(win) + ';min_count=' + str(min) + '\n')
-    f.write('balanced_accuracy ' + str(balanced_accuracy) + '\n')
-    f.write('f1_score ' + str(f1_score) + '\n')
-    f.write('precision ' + str(precision) + '\n')
-    f.write('recall' + str(recall) + '\n')
+    f.write('balanced_accuracy\n' + str(balanced_accuracy) + '\n')
+    f.write('f1_score\n' + str(f1_score) + '\n')
+    f.write('precision\n' + str(precision) + '\n')
+    f.write('recall\n' + str(recall) + '\n')
     f.close()
 
 def experiment(dataset, vec_size, win, min):
